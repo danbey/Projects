@@ -1,6 +1,7 @@
 
 import socket
 import os
+from time import sleep
 
 
 print ("Client starting... ")
@@ -13,71 +14,69 @@ s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 s.connect((TCP_IP, TCP_PORT))
 
 while True:
-    order = input("Please choose List,Get or Put. What is your order? ")
-    type(order)
-    print('order is...' + order)
-    if order == "list":
-        s.send(order.encode())
-        print('receiving size...')
+    input_cmd = input("Please choose List,Get or Put. What is your order? ")
+    type(input_cmd)
+    order = [str(x) for x in input_cmd.split(' ')]
+    for x in order:
+        print (x)
+    print('order is...' + order[0])
+    if order[0] == "list":
+        s.send(order[0].encode())
         size = s.recv(16)
         if not size:
             break
-        size = int(size)
-        print(size)        
+        size = int(size, 2)
         while(size > 0):
             data = s.recv(BUFFER_SIZE)
-            file_name = data.decode()
-            size -= len(file_name)
-            print(file_name)
             if not data:
                 break
-        print('Successfully get the file')
-    elif order == "get":
-        s.send(order.encode())
-        data = s.recv(BUFFER_SIZE)
-        print(data)
-        file_name = input("File name please?")
-        type(file_name)
-        print('You request for file:' + file_name)
-        s.send(file_name.encode())
-        print('receiving file...')
-        with open(file_name, 'wb') as ff:
-            data = s.recv(BUFFER_SIZE)
-            ff.write(data)
-            while(data):
-                print(data)
-                if not data:
-                    ff.close()
-                    print ("file close()")
-                    break
-                data = s.recv(BUFFER_SIZE)
-                ff.write(data)
-            print('Successfully get the file')
-        ff.close()
-    elif order == "put":
-        s.send(order.encode())
-        data = s.recv(BUFFER_SIZE)
-        print(data)
-        file_name = input("File name please?")
-        type(file_name)
-        print('You putting file:' + file_name)
-        s.send(file_name.encode())
-        data = s.recv(BUFFER_SIZE)
-        print(data)
-        print('sending file...')
-        f = open(dir_path + "/" + file_name, 'rb')
-        while True:
-            l = f.read(BUFFER_SIZE)
-            while (l):
-                s.send(l)
-                l = f.read(BUFFER_SIZE)
-            if not l:
-                f.close()
+            file_name = data.decode()
+            size -= len(file_name)
+            for x in file_name.split(','):
+                print(x)
+    elif order[0] == "get":
+        for file_name in order[1:]:
+            print ("file_name")
+            s.send((order[0]+ " " + file_name).encode())
+            size = s.recv(32)
+            if not size:
                 break
-        
-    elif order == "exit":
+            size = int(size, 2)
+            print('receiving file...')
+            with open(file_name, 'wb') as ff:
+                while(size > 0):
+                    data = s.recv(BUFFER_SIZE)
+                    size -= len(data)
+                    if not data:
+                        break
+                    ff.write(data)
+            print('Successfully get the file' + file_name)
+            ff.close()
+    elif order[0] == "put":
+        for file_name in order[1:]:
+            print (file_name)
+            if not (os.path.isfile(dir_path + "/" + file_name)):
+                print ("The file " + file_name + " not exist, continue to next file...")
+                continue
+            filesize = os.path.getsize(dir_path + "/" + file_name)
+            filesize = bin(filesize)[2:].zfill(32)
+            s.send((order[0]+ " " + filesize + " " + file_name).encode())
+            sleep(0.10)
+            f = open(dir_path + "/" + file_name, 'rb')
+            while True:
+                l = f.read(BUFFER_SIZE)
+                while (l):
+                    s.send(l)
+                    l = f.read(BUFFER_SIZE)
+                if not l:
+                    f.close()
+                    break
+            f.close()
+    elif order[0] == "exit":
         print('Exiting...')
-        s.close()
+        break
+    else:
         break
 
+s.close()
 print('connection closed')

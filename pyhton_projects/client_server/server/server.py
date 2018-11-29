@@ -2,6 +2,7 @@
 import socket
 import glob
 import os
+from time import sleep
 
 from threading import Thread
 from socketserver import ThreadingMixIn
@@ -24,29 +25,28 @@ class ClientThread(Thread):
 
     def run(self):
         while True:
-            o = self.sock.recv(BUFFER_SIZE)
-            operation = o.decode()
-            print("operation=" + operation)
-            if operation == "list":
+            input_cmd = self.sock.recv(BUFFER_SIZE)
+            input_cmd = input_cmd.decode()
+            order = [str(x) for x in input_cmd.split(' ')]
+            if order[0] == "list":
                 print("this is List operation!")
                 files_list_init = glob.glob(dir_path + '/*.txt')
                 print(files_list_init)
                 files_list = []
                 files_name_len = 0
                 for file in files_list_init:
-                    file_name = file[file.rfind("\\")+1:]
+                    file_name = file[file.rfind("\\")+1:] + ","
                     files_list.append(file_name)
                     files_name_len += len(file_name)
                 files_name_len = bin(files_name_len)[2:].zfill(16)
-                self.sock.send(files_name_len)
+                self.sock.send(files_name_len.encode())
                 for file in files_list:
                     self.sock.send(file.encode())
-                    print("Sending:" +file)
-            elif operation == 'get':
-                print("this is Get operation!")
-                self.sock.send("send file name".encode())
-                o = self.sock.recv(BUFFER_SIZE)
-                file_name = o.decode()
+            elif order[0] == "get":
+                file_name = order[1]
+                filesize = os.path.getsize(dir_path + "/" + file_name)
+                filesize = bin(filesize)[2:].zfill(32)
+                self.sock.send(filesize.encode())
                 f = open(dir_path + "/" + file_name, 'rb')
                 while True:
                     l = f.read(BUFFER_SIZE)
@@ -56,28 +56,22 @@ class ClientThread(Thread):
                     if not l:
                         f.close()
                         break
-                print('Successfully get the file')
                 f.close()
-            elif operation == 'put':
-                print("this is Put operation!")
-                self.sock.send("send file name".encode())
-                o = self.sock.recv(BUFFER_SIZE)
-                file_name = o.decode()
+            elif order[0] == "put":
+                file_name = order[2]
+                size = order[1]
+                if not size:
+                    break
+                size = int(size, 2)
                 with open(dir_path + "/" + file_name, 'wb') as ff:
-                    self.sock.send("ready to receive".encode())
-                    data = self.sock.recv(BUFFER_SIZE)
-                    ff.write(data)
-                    while(data):
-                        print(data)
-                        if not data:
-                            ff.close()
-                            print ("file close()")
-                            break
+                    while(size > 0):
                         data = self.sock.recv(BUFFER_SIZE)
+                        size -= len(data)
+                        if not data:
+                            break
                         ff.write(data)
-                    print('Successfully get the file')
                 ff.close()
-            elif operation == 'put':
+            elif order[0] == 'exit':
                 self.sock.close()
 tcpsock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 tcpsock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
