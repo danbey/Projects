@@ -1,0 +1,29 @@
+{
+    "configurations": [
+        {
+            "name": "Win32",
+            "includePath": [
+                "${workspaceFolder}/**",
+                "C:/pthreads-w32-2-9-1-release/Pre-built.2/include"
+            ],
+            "defines": [
+                "_DEBUG",
+                "UNICODE",
+                "__GNUC__=6",
+                "__cdecl=__attribute__((__cdecl__))",
+                "__SIZE_TYPE__=long long unsigned int"
+            ],
+            "intelliSenseMode": "msvc-x64",
+            "browse": {
+                "path": [
+                    "C:/pthreads-w32-2-9-1-release/Pre-built.2/include",
+                    "C:/MinGW/lib/gcc/mingw32/6.3.0",
+                    "C:/MinGW/lib/gcc/mingw32/6.3.0/include/c++"
+                ],
+                "limitSymbolsToIncludedHeaders": true,
+                "databaseFilename": ""
+            }
+        }
+    ],
+    "version": 4
+}

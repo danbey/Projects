@@ -1,0 +1,57 @@
+{
+    // See https://go.microsoft.com/fwlink/?LinkId=733558
+    // for the documentation about the tasks.json format
+    "version": "2.0.0",
+    "tasks": [
+        {
+            "label": "build server",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "-std=c++14",
+                "-static",
+                "-static-libgcc",
+                "-static-libstdc++",
+                "server.cpp",
+                "-lws2_32",
+                "-o",
+                "server"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "build client",
+            "type": "shell",
+            "command": "g++",
+            "args": [
+                "-std=c++14",
+                "-static",
+                "-static-libgcc",
+                "-static-libstdc++",
+                "client.cpp",
+                "-lws2_32",
+                "-o",
+                "client"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "run client",
+            "type": "shell",
+            "command": "client.exe",
+            "dependsOn":[
+                "build client"
+            ],
+            "problemMatcher": []
+        },
+        {
+            "label": "run server",
+            "type": "shell",
+            "command": "server.exe",
+            "dependsOn":[
+                "build server"
+            ],
+            "problemMatcher": []
+        }
+    ]
+}
