@@ -1,70 +1,76 @@
-#include <iostream>
+#include <iostream> 
+#include <array>
+#include <vector>
+#include <string>
+#include <sstream>
+#include <memory>
+#include <stack>
+#include <algorithm>
+#include <queue>
+#include <unordered_map>
+#include <deque>
 
 
-class Manager 
-{
-public:
-    int m_counter;
-    Manager():m_counter(1){}
+using namespace std;
 
-    void inc() {
-        m_counter++;
+
+
+using VecInt = vector<int>;
+//using VecChar = vector<char>;
+
+ 
+void findMissingRanges(VecInt &vec, int lower, int upper) {
+
+    vector<string> res;
+    stringstream  ss;
+    //TODO is vec size = 1 
+    if (!vec.size()) {
+        ss << lower << "->" << upper;
+        cout << ss.str();
+        return ;
     }
 
-    void dec(){
-        m_counter--;
-    }
-
-    int get_counter() {
-        return m_counter;
-    }
-};
-
-
-template<typename T>
-class RefCounter
-{
-    T * ptr;
-    Manager *mng;
-
-public:
-
-    RefCounter(){}
-
-    RefCounter(T *obj):ptr(obj) {
-        mng = new Manager();
-    }
     
+    if (lower < vec[0]) {
+        ss << lower << "->" << (vec[0]-1);
+        res.emplace_back(ss.str());
+    }
 
-    ~RefCounter() {
-        mng->dec();
-        if (mng->get_counter()==0) {
-            delete ptr;
-            delete mng;
+    for (auto i=0; i < vec.size()-1; i++) {
+        auto c_gap = vec[i+1] - vec[i];
+        if (c_gap > 1) {
+            
+            ss.str("");
+            if (c_gap > 2) {
+                ss << (vec[i]+1);
+                ss <<  "->" ;
+                ss << (vec[i+1]-1);
+            } else
+                ss << (vec[i]+1);
+            
+            res.emplace_back(ss.str());
+
         }
     }
-   
-    RefCounter & operator=(RefCounter &other) {
-        ptr = other.ptr;
-        mng = other.mng;
-        mng->inc();
 
-        return *this;
+    if (vec[vec.size()-1] < upper) {
+        ss.str("");
+        ss << (vec[vec.size()-1]+1) << "->" << upper;
+        res.emplace_back(ss.str());
     }
-};
 
+    for (auto &i:res)
+        cout << i << ',';
+    
+}
 
 int main()
 {
-    RefCounter<int> rf(new int(3));
-    {
-        RefCounter<int> rf2;
-        
-        rf2 = rf;
-    }
-
-
     
+   //VecInt vec = {0,1,3,50,75};
+   VecInt vec = {0,90};
+  
+    findMissingRanges(vec, 0, 99);
 
-   return 0;
+    return 0;
 }

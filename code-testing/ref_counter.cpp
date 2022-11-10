@@ -1,5 +1,5 @@
 #include <iostream>
-
+/*
 class Manager 
 {
     int m_counter;
@@ -48,14 +48,83 @@ public:
         return *this;
     }
 };
+*/
+
+class Item {};
+
+template<typename T>
+class RefCnt;
+
+class CntHolderIFace {};
+
+template<class T>
+class CntHolder;
+
+template<class T>
+class CntHolder :public CntHolderIFace
+{
+public:
+    CntHolder(T *realPtr): pointee(realPtr){}
+    ~CntHolder() {
+        delete pointee;
+    }
+
+    void addRef() {
+        refCounter++;
+    };
+
+    void removeRef() {
+        if (--refCounter == 0)
+        delete this;
+    };
+
+    T * pointee;
+    int refCounter;
+
+private:
+
+};
+
+template<typename T>
+class RefCnt 
+{
+public:
+    RefCnt(T * realPtr): pCntHolder(new CntHolder<T>(realPtr)) {
+        init();
+    }
+
+    ~RefCnt() {
+        pCntHolder->removeRef();
+    }
+
+    void init() {
+        //Todo check isShare;
+        pCntHolder->addRef();
+    }
+
+    CntHolder<T> * pCntHolder;
+
+};
+
+
+class RCItem {
+public:
+    //Item public functions
+    RCItem():realItem(new Item()) {} 
+
+    RefCnt<Item> realItem;
+private:
+};
+
+
 
 int main()
 {
-    RefCounter<int> rf(new int(3));
+  //  RefCounter<int> rf(new int(3));
     {
-        RefCounter<int> rf2;
+    //    RefCounter<int> rf2;
         
-        rf2 = rf;
+        //rf2 = rf;
     }
 
    return 0;
