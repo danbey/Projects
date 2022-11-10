@@ -1,0 +1,5 @@
+Tel Aviv,Center,IL
+Haifa,North,IL
+Eilat,South,IL
+Bat-Yam,Center,IL
+Tobaa-Zangariaa,North,IL
