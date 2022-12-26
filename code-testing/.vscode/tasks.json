@@ -10,7 +10,8 @@
                 "-pthread",
                 "${file}",
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
+                "${fileDirname}/${fileBasenameNoExtension}",
+                "-DSPDLOG_FMT_EXTERNAL -DSPDLOG_COMPILED_LIB"
             ],
             "options": {
                 "cwd": "${workspaceFolder}"

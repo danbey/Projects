@@ -3,9 +3,11 @@
         {
             "name": "Linux",
             "includePath": [
-                "/usr/include/**"
+                "/usr/include/**",
+                "/home/dan/.conan/data/fmt/9.1.0/_/_/package/db123017807f5c094e7ffe64463018510e127133/include/**",
+                "/home/dan/.conan/data/spdlog/1.11.0/_/_/package/67e99900f40780390cb6ef5e72ca821fe69f86c9/include/**"
             ],
-            "defines": [],
+            "defines": ["SPDLOG_FMT_EXTERNAL", "SPDLOG_COMPILED_LIB"],
             "cStandard": "c17",
             "cppStandard": "c++17",
             "intelliSenseMode": "linux-gcc-x64"
